@@ -3,6 +3,7 @@ import { LogInPage } from './pages/LogInPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { UserInfoPage } from './pages/UserInfoPage';
 import { PrivateRoute } from './auth/PrivateRoute';
+import { LoginRedirect } from './auth/LoginRedirect';
 
 export const Routes = () => {
     return (
@@ -11,12 +12,12 @@ export const Routes = () => {
                 <PrivateRoute path="/" exact>
                     <UserInfoPage />
                 </PrivateRoute>
-                <Route path="/login">
+                <LoginRedirect path="/login">
                     <LogInPage />
-                </Route>
-                <Route path="/signup">
+                </LoginRedirect>
+                <LoginRedirect path="/signup">
                     <SignUpPage />
-                </Route>
+                </LoginRedirect>
             </Switch>
         </Router>
     );
