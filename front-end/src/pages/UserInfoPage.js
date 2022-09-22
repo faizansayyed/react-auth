@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { useToken } from '../auth/useToken.js';
-import { useUser } from '../auth/useUser.js';
+import { useToken } from '../auth/useToken';
+import { useUser } from '../auth/useUser';
 
 export const UserInfoPage = () => {
     const user = useUser();
     const [token, setToken] = useToken();
 
-    const { id, email, info } = user;
+    const { id, email, isVerified, info } = user;
 
     // We'll use the history to navigate the user
     // programmatically later on (we're not using it yet)
@@ -60,17 +60,18 @@ export const UserInfoPage = () => {
         localStorage.removeItem('token');
         history.push('/login');
     }
-    
+
     const resetValues = () => {
         setFavoriteFood(info.favoriteFood);
         setHairColor(info.hairColor);
         setBio(info.bio);
     }
-    
+
     // And here we have the JSX for our component. It's pretty straightforward
     return (
         <div className="content-container">
             <h1>Info for {email}</h1>
+            {!isVerified && <div className="fail">You won't be able to make any changes until you verify your email</div>}
             {showSuccessMessage && <div className="success">Successfully saved user data!</div>}
             {showErrorMessage && <div className="fail">Uh oh... something went wrong and we couldn't save changes</div>}
             <label>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { useToken } from '../auth/useToken.js';
+import { useToken } from '../auth/useToken';
 
 export const LogInPage = () => {
     const [token, setToken] = useToken();
