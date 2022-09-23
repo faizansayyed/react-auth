@@ -19,7 +19,7 @@ export const signUpRoute = {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const verificationString = uuid()
+        const verificationString = uuid();
 
         const startingInfo = {
             hairColor: '',
@@ -32,24 +32,25 @@ export const signUpRoute = {
             passwordHash,
             info: startingInfo,
             isVerified: false,
+            verificationString,
         });
         const { insertedId } = result;
-
 
         try {
             await sendEmail({
                 to: email,
-                form: process.env.DEFAULT_EMAIL,
-                subject: "Please verify your email",
+                from: process.env.DEFAULT_EMAIL,
+                subject: 'Please verify your email',
                 text: `
-                Thanks for signing up! To verify your email, click here:
-                http://localhost:3000/verify-email/${verificationString}
-                `
-            })
-        } catch (error) {
-            console.log(e)
-            res.sendStatus(500)
+                    Thanks for signing up! To verify your email, click here:
+                    http://localhost:3000/verify-email/${verificationString}
+                `,
+            });
+        } catch (e) {
+            console.log(e);
+            res.sendStatus(500);
         }
+
         jwt.sign({
             id: insertedId,
             email,

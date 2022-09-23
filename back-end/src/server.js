@@ -1,11 +1,11 @@
 import express from 'express';
 import { routes } from './routes/index.js';
 import { initializeDbConnection } from './db.js';
-import { config } from "dotenv";
+import dotenv from "dotenv";
 const PORT = process.env.PORT || 8080;
 
 
-config()
+dotenv.config();
 const app = express();
 
 // This allows us to access the body of POST/PUT
