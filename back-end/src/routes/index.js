@@ -1,4 +1,6 @@
+import { forgotPasswordRoute } from './forgotPasswordRoute.js';
 import { logInRoute } from './logInRoute.js';
+import { resetPasswordRoute } from './resetPasswordRoute.js';
 import { signUpRoute } from './signUpRoute.js';
 import { testEmailRoute } from './testEmailRoute.js';
 import { testRoute } from './testRoute.js';
@@ -11,5 +13,7 @@ export const routes = [
     testRoute,
     updateUserInfoRoute,
     verifyEmailRoute,
-    testEmailRoute
+    testEmailRoute,
+    forgotPasswordRoute,
+    resetPasswordRoute
 ];
