@@ -1,8 +1,8 @@
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getDbConnection } from '../db.js';
-import { v4 as uuid } from 'uuid'
-import { sendEmail } from '../utils/sendEmail.js';
+import { awsUserPool } from '../utils/awsUserPool.js';
+import { CognitoUserAttribute } from 'amazon-cognito-identity-js';
+
 
 export const signUpRoute = {
     path: '/api/signup',
@@ -10,62 +10,44 @@ export const signUpRoute = {
     handler: async (req, res) => {
         const { email, password } = req.body;
 
-        const db = getDbConnection('react-auth-db');
-        const user = await db.collection('users').findOne({ email });
+        const attributes = [
+            new CognitoUserAttribute({ Name: 'email', Value: email }),
+        ];
 
-        if (user) {
-            res.sendStatus(409);
-        }
+        awsUserPool.signUp(email, password, attributes, null, async (err, awsResult) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Unable to sign up user' });
+            }
 
-        const passwordHash = await bcrypt.hash(password, 10);
+            const db = getDbConnection('react-auth-db');
 
-        const verificationString = uuid();
+            const startingInfo = {
+                hairColor: '',
+                favoriteFood: '',
+                bio: '',
+            };
 
-        const startingInfo = {
-            hairColor: '',
-            favoriteFood: '',
-            bio: '',
-        };
-
-        const result = await db.collection('users').insertOne({
-            email,
-            passwordHash,
-            info: startingInfo,
-            isVerified: false,
-            verificationString,
-        });
-        const { insertedId } = result;
-
-        try {
-            await sendEmail({
-                to: email,
-                from: process.env.DEFAULT_EMAIL,
-                subject: 'Please verify your email',
-                text: `
-                    Thanks for signing up! To verify your email, click here:
-                    http://localhost:3000/verify-email/${verificationString}
-                `,
+            const result = await db.collection('users').insertOne({
+                email,
+                info: startingInfo,
             });
-        } catch (e) {
-            console.log(e);
-            res.sendStatus(500);
-        }
+            const { insertedId } = result;
 
-        jwt.sign({
-            id: insertedId,
-            email,
-            info: startingInfo,
-            isVerified: false,
-        },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: '2d',
+            jwt.sign({
+                id: insertedId,
+                isVerified: false,
+                email,
+                info: startingInfo,
             },
-            (err, token) => {
-                if (err) {
-                    return res.status(500).send(err);
-                }
-                res.status(200).json({ token });
-            });
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: '2d',
+                },
+                (err, token) => {
+                    if (err) return res.sendStatus(500);
+                    res.status(200).json({ token });
+                })
+        });
     }
 }
